@@ -1,0 +1,317 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>DataBase Table</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+     
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.3.1/css/all.css" 
+integrity="sha384-mzrmE5qonljUremFsqc01SB46JvROS7bZs3IO2EmfFsd15uHvIt+Y8vEf7N7fWAU" crossorigin="anonymous">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+</head>
+<body>
+<style>
+        table,
+        th{
+            font-size: 13px;
+        }
+        td {
+            border: 1px solid black;
+            border-collapse: collapse;
+        }
+        table{
+            border-collapse: collapse;
+            width: 100%;
+        }
+        h2{
+          padding-top: 10px;
+        }
+        th a {
+				display: inline;
+				text-decoration:none;
+				padding: 10px;
+				color: #ffffff;
+				font-weight: bold;
+				font-size: 13px;
+			}
+           
+		th a i {
+				margin-left: 20px;
+				color: rgba(255,255,255,0.4);
+			}
+        /* setting the text-align property to center*/
+        td {
+            padding: 5px;
+            text-align: center;
+        }
+        .inline{  
+            display: inline-block;  
+            margin: 20px 0px;  
+        }  
+            .pagination {  
+        display: inline-block;  
+    }  
+    button a{
+        text-decoration:none;
+        
+    }
+    
+    .pagination a {  
+        font-weight:bold;  
+        font-size:18px;  
+        color: black;  
+        float: left;  
+        padding: 8px 16px;  
+        text-decoration: none;  
+        border:1px solid black;  
+    }  
+    .pagination a.active {  
+            background-color: lightgreen;  
+    }  
+    .pagination a:hover:not(.active) {  
+        background-color: cryan;  
+    }
+</style>
+
+
+        
+
+    <center>
+    <?php  
+
+    $per_page_record = 10;  // Number of entries to show in a page.   
+    // Look for a GET variable page if not found default is 1.        
+    if (isset($_GET["page"])) {    
+        
+        $page  = $_GET["page"];   
+    }    
+    else {    
+    
+       $page=1;
+    }    
+
+    $start_from = ($page-1) * $per_page_record;     
+
+    // $query = "SELECT * FROM data LIMIT $start_from, $per_page_record";     
+    // $result = mysqli_query ($dbCon, $query); 
+      
+      // Import the file where we defined the connection to Database.     
+      $columns = array('id','name', 'date', 'gender', 'email', 'phone_no','password','cpassword','file');
+      $column = isset($_GET['column']) && in_array($_GET['column'], $columns) ? $_GET['column'] : $columns[0];
+      $sort_order = isset($_GET['order']) && strtolower($_GET['order']) == 'desc' ? 'DESC' : 'ASC';
+    // echo "SELECT * FROM `data`  ORDER BY   $column  $sort_order LIMIT $start_from, $per_page_record"; exit;
+    if ($result = mysqli_query($dbCon,"SELECT * FROM `sign_up`  ORDER BY   $column  $sort_order LIMIT $start_from, $per_page_record")) {
+        $up_or_down = str_replace(array('ASC','DESC'), array('up','down'), $sort_order); 
+        $asc_or_desc = $sort_order == 'ASC' ? 'desc' : 'asc';
+        $add_class = ' class="highlight"';   
+
+          
+    ?>
+<div class="container">
+    <form method="POST"  action="muldelete.php">
+        <div class="table-responsive">
+            <div class="page-header">
+                <h2>Fetch Data From Database in PHP and Display in HTML Table</h2>
+            </div>
+
+            <table class="table table-striped" id="table">
+              <thead class="thead-dark"> 
+                <tr>
+                  <th class="active"><input id="checkboxid" type="checkbox" class="select-all checkbox" name="select-all" value="checkboxid" /></th>
+                  <th><a href="table.php?column=id&order=<?php echo $asc_or_desc; ?>"><center>ID</center><i class="fas fa-sort<?php echo $column == 'id' ? '-' . $up_or_down : ''; ?>"></i></a></th>
+                  <th><center>Name</center></th>
+                  <th><center>Email</center></th>
+                  <th><center>Password</center></th>
+                  <th><center>Address1</center></th>
+                  <th><center>Address2</center></th>
+                  <th><center>City</center></th>
+                  <th><center>Zip</center></th>
+                  <th><a href="table.php?column=state&order=<?php echo $asc_or_desc; ?>"><center>State</center><i class="fas fa-sort<?php echo $column == 'state' ? '-' . $up_or_down : ''; ?>"></i></a></th>
+                  <th><a href="table.php?column=gender&order=<?php echo $asc_or_desc; ?>"><center>Gender</center><i class="fas fa-sort<?php echo $column == 'gender' ? '-' . $up_or_down : ''; ?>"></i></a></th>
+                  <th><a href="table.php?column=subject&order=<?php echo $asc_or_desc; ?>"><center>Subject</center><i class="fas fa-sort<?php echo $column == 'subject' ? '-' . $up_or_down : ''; ?>"></i></a></th>
+                  <th><center>File</center></th>
+                  <th>Edit/Update</th>
+                  <th><center>Delete</center></th>
+                </tr>
+              </thead>
+              <tbody>
+            
+
+                <?php if ($result->num_rows > 0): ?>
+
+                <?php while($array=mysqli_fetch_row($result)):  ?>
+                
+                <tr>
+                <td><div class="form-check">
+                <input type="checkbox" id="checkboxid" class="select-item checkbox" name="select-item[]" value="<?php echo $array[0];?>" />
+  					</div>
+					</td>
+                    <td <?php echo $column == 'id' ? $add_class : ''; ?>><?php echo $array[0];?></td>
+                    <td <?php echo $column == 'name' ? $add_class : ''; ?>><?php echo $array[1];?></td>
+                    <td><?php echo $array[2];?></td>
+                    <td><?php echo $array[3];?></td>
+                    <td><?php echo $array[4];?></td>
+                    <td><?php echo $array[5];?></td>
+                    <td><?php echo $array[6];?></td>
+                    <td><?php echo $array[7];?></td>
+                    <td <?php echo $column == 'state' ? $add_class : ''; ?>><?php echo $array[8];?></td>
+                    <td <?php echo $column == 'gender' ? $add_class : ''; ?>><?php echo $array[9];?></td>
+                    <td <?php echo $column == 'subject' ? $add_class : ''; ?>><?php echo $array[10];?></td>
+                    <td><img src ='./uploaded/<?php echo $array[11];?>'height='100px'width='100px'></td>
+                    <td><a href="update.php?id_db=<?php echo $array[0];?>">Edit</td>
+                    <td><a href="delete.php?id_db=<?php echo $array[0];?>">Delete</td>
+                </tr>
+
+                <?php endwhile; ?>
+
+                <?php else: ?>
+                <tr>
+                   <td colspan="11" rowspan="1" headers="">No Data Found</td>
+                </tr>
+                <?php endif; ?>
+
+                <?php mysqli_free_result($result); ?>
+
+              </tbody>
+            </table>
+            <button class="btn btn-danger" id="rmvBtn" onclick="deleteCheckBox()" name="btnDeletename">Delete</button>
+            </form>
+        </div>
+        
+            <button class="btn btn-success" id="select-all" class="btn button-default">SelectAll/Cancel</button>
+	          <button id="select-invert" class="btn btn-info">Invert</button>
+	          <button id="selected" class="btn btn-primary">GetSelected</button>
+              <button type = "button" class ="btn btn-info" onclick="document.location='search.php'" data-toggle="tooltip" >Search</button>
+                    
+            
+       
+</div>
+<div class="pagination">    
+      <?php  
+        $query = "SELECT COUNT(*) FROM data";     
+        $result = mysqli_query($dbCon, $query);     
+        $row = mysqli_fetch_row($result);     
+        $total_records = $row[0];     
+          
+    echo "</br>";     
+        // Number of pages required.   
+        $total_pages = ceil($total_records / $per_page_record);     
+        $pagLink = "";       
+      
+        if($page>=2){   
+            echo "<a href='table.php?page=".($page-1)."'>  Prev </a>";   
+        }       
+                   
+        for ($i=1; $i<=$total_pages; $i++) {   
+          if ($i == $page) {   
+              $pagLink .= "<a class = 'active' href='table.php?page="  
+                                                .$i."'>".$i." </a>";   
+          }               
+          else  {   
+              $pagLink .= "<a href='table.php?page=".$i."'>   
+                                                ".$i." </a>";     
+          }   
+        };     
+        echo $pagLink;   
+  
+        if($page<$total_pages){   
+            echo "<a href='table.php?page=".($page+1)."'>  Next </a>";   
+        }   
+  
+      ?>    
+      </div>  
+  
+  
+      <div class="inline">   
+      <input id="page" type="number" min="1" max="<?php echo $total_pages?>"   
+      placeholder="<?php echo $page."/".$total_pages; ?>" required>   
+      <button class="btn btn-success" onClick="go2Page();">Go</button>   
+     </div>    
+    </div>   
+  </div>  
+</center>   
+  <script>   
+    function go2Page()   
+    {   
+        var page = document.getElementById("page").value;   
+        page = ((page><?php echo $total_pages; ?>)?<?php echo $total_pages; ?>:((page<1)?1:page));   
+        window.location.href = 'table.php?page='+page;   
+    }   
+  </script>
+</body>
+<script>
+$(function(){
+
+        //button select all or cancel
+        $("#select-all").click(function () {
+            var all = $("input.select-all")[0];
+            all.checked = !all.checked
+            var checked = all.checked;
+            $("input.select-item").each(function (index,item) {
+                item.checked = checked;
+            });
+        });
+
+        //button select invert
+        $("#select-invert").click(function () {
+            $("input.select-item").each(function (index,item) {
+                item.checked = !item.checked;
+            });
+            checkSelected();
+        });
+
+        //button get selected info
+        $("#selected").click(function () {
+            var items=[];
+            $("input.select-item:checked:checked").each(function (index,item) {
+                items[index] = item.value;
+            });
+            if (items.length < 1) {
+                alert("no selected items!!!");
+            }else {
+                var values = items.join(',');
+                console.log(values);
+                var html = $("<div></div>");
+                html.html("selected:"+values);
+                html.appendTo("body");
+            }
+        });
+
+        //column checkbox select all or cancel
+        $("input.select-all").click(function () {
+            var checked = this.checked;
+            $("input.select-item").each(function (index,item) {
+                item.checked = checked;
+            });
+        });
+
+        //check selected items
+        $("input.select-item").click(function () {
+            var checked = this.checked;
+            console.log(checked);
+            checkSelected();
+        });
+
+        //check is all selected
+        function checkSelected() {
+            var all = $("input.select-all")[0];
+            var total = $("input.select-item").length;
+            var len = $("input.select-item:checked:checked").length;
+            console.log("total:"+total);
+            console.log("len:"+len);
+            all.checked = len===total;
+        }
+    });
+</script>
+<script>
+$(document).ready(function(){
+  $('[data-toggle="tooltip"]').tooltip();   
+});
+</script>
+</html>
+<?php 
+$result->free();
+}
+?>
